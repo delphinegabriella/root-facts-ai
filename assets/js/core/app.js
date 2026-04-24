@@ -99,20 +99,32 @@ class RootFactsApp {
         }
     }
     
-    async detectLoop() {
+   async detectLoop() {
         if (!this.isRunning) return;
 
         if (this.camera.isActive() && this.camera.isReady()) {
-            try {
-                const prediction = await this.detector.predict(this.camera.video);
-                this.lastPrediction = prediction;
-                
-                this.ui.showResults(prediction, { funFact: "Klik Tombol STOP (merah) untuk menghasilkan fakta unik!"});
-                
+           try {
+           const prediction = await this.detector.predict(this.camera.video);
+           this.lastPrediction = prediction;
+
+                if (this.lastDetectedName !== prediction.className) {
+                    this.lastDetectedName = prediction.className; 
+
+                    const funFactPromise = this.funFactGenerator.generateFunFact(prediction.className)
+                        .then(text => { return { funFact: text }; }); 
+
+                    this.ui.updateRealtimeDetection(prediction, funFactPromise);
+
+                } else {
+
+                    if (this.ui.detectedConfidence) this.ui.detectedConfidence.textContent = `${prediction.confidence}%`;
+                    if (this.ui.confidenceFill) this.ui.confidenceFill.style.width = `${prediction.confidence}%`;
+                }
+
             } catch (error) {
-                console.error("Deteksi gagal:", error);
+               console.error("Deteksi gagal:", error);
             }
-        }
+            }
 
         if (this.isRunning) {
             this.currentLoopId = requestAnimationFrame(() => this.detectLoop());

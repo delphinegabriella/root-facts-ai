@@ -204,10 +204,31 @@ class UIHandler {
 		}
 	}
 
+	updateRealtimeDetection(prediction, funFactPromise) {
+
+     if (this.stateResult.classList.contains('hidden') || this.stateResult.style.display === 'none') {
+         this.switchToState('result');
+        }
+
+
+		if (this.detectedName) setElementText(this.detectedName, prediction.className);
+        if (this.detectedConfidence) setElementText(this.detectedConfidence, `${prediction.confidence}%`);
+        if (this.confidenceFill) this.confidenceFill.style.width = `${prediction.confidence}%`;
+
+      this.updateFunFactState('loading'); 
+
+       funFactPromise.then(funFactData => {
+        if (funFactData) {
+           this.updateFunFactState('success', funFactData);
+            }
+        }).catch(() => {
+             this.updateFunFactState('error');
+         });
+     }
+	
 	showResults(prediction, funFact) {
 		this.switchToState('result');
 
-		// Clear old results before showing new ones
 		if (this.funFactText) {
 			setElementText(this.funFactText, '');
 		}
