@@ -40,11 +40,12 @@ class FunFactService {
             this.isGenerating = true;
 
             const safeVegetable = vegetable.replace(/[^a-zA-Z\s]/g, '').substring(0, 30);
-            const prompt = `Berikan satu fakta unik dan singkat tentang sayuran ${safeVegetable} dalam bahasa Indonesia.`;
+            const prompt = `write one short and interesting fun fact about ${safeVegetable}.`;
 
             const result = await this.generator(prompt, {
                 max_new_tokens: 50,
-                temperature: 0.7
+                temperature: 0.7,
+                do_sample: true
             });
 
             return result[0].generated_text;
